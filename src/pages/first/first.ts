@@ -1,5 +1,7 @@
+import { platformBrowserDynamic } from '@angular/platform-browser-dynamic';
+import { AngularFireAuth } from 'angularfire2/auth';
 import { Component } from '@angular/core';
-import { IonicPage, NavController, NavParams } from 'ionic-angular';
+import { IonicPage, NavController, NavParams, Platform } from 'ionic-angular';
 
 /**
  * Generated class for the FirstPage page.
@@ -15,7 +17,11 @@ import { IonicPage, NavController, NavParams } from 'ionic-angular';
 })
 export class FirstPage {
 
-  constructor(public navCtrl: NavController, public navParams: NavParams) {
+  email:string;
+  constructor(private fireAuth:AngularFireAuth,public navCtrl: NavController, 
+    public navParams: NavParams,public platformCtrl:Platform) {
+  // navCtrl.remove(0);
+  this.email=fireAuth.auth.currentUser.email;
   }
 
   ionViewDidLoad() {
@@ -24,7 +30,10 @@ export class FirstPage {
 
 
   popPage() {
-    this.navCtrl.pop();
+    console.log(this.navCtrl.getByIndex(0));
+    // if((this.navCtrl.getPrevious()).is)
+    // this.navCtrl.pop();
+    this.platformCtrl.exitApp();
   }
 
 }

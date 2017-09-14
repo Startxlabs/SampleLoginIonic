@@ -1,58 +1,53 @@
 import { AngularFireAuth } from 'angularfire2/auth';
-import { RegisterPage } from './../register/register';
-import { FirstPage } from './../first/first';
+
 import { Component, ViewChild } from '@angular/core';
-import { NavController } from 'ionic-angular';
-import { ToastController } from 'ionic-angular';
-import { AlertController } from 'ionic-angular';
-import { LoadingController } from 'ionic-angular';
+import { IonicPage, NavController, NavParams, ToastController, LoadingController, AlertController } from 'ionic-angular';
 
+
+
+@IonicPage()
 @Component({
-  selector: 'page-home',
-  templateUrl: 'home.html'
+  selector: 'page-register',
+  templateUrl: 'register.html',
 })
-export class HomePage {
+export class RegisterPage {
 
-  @ViewChild('email') userName;
-  @ViewChild('password') password;
+  @ViewChild('regEmail') regEmail;
+  @ViewChild('regpassword') regPassword;
 
-
-  constructor(private frieCtrl: AngularFireAuth, public navCtrl: NavController,
-    public toastCtrl: ToastController, public alertCtrl: AlertController,
-    public loadingCtrl: LoadingController) {
-
+  constructor(private fireCtrl: AngularFireAuth, public navCtrl: NavController,
+    public navParams: NavParams, public toastCtrl: ToastController,
+    public loadingCtrl: LoadingController, public alertCtrl: AlertController) {
   }
 
-  signIn() {
+  ionViewDidLoad() {
+    console.log('ionViewDidLoad RegisterPage');
+  }
+
+  registerButton() {
     let isValid = true;
     let regExp = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/;
-    if (!regExp.test(this.userName.value)) {
+    if (!regExp.test(this.regEmail.value)) {
       isValid = false;
       this.presentToast("Please enter the valid email");
-    } else if ((this.password.value).length == 0) {
+    } else if ((this.regPassword.value).length < 8) {
       isValid = false;
-      this.presentToast("Please enter the Password");
+      this.presentToast("Password length must be greater than 8");
     }
 
     if (isValid) {
       let loader = this.presentLoading();
-      this.frieCtrl.auth.signInWithEmailAndPassword(this.userName.value, this.password.value)
+      this.fireCtrl.auth.createUserWithEmailAndPassword(this.regEmail.value, this.regPassword.value)
         .then(data => {
-          console.log(data);
+          console.log("got data" + data);
           loader.dismiss();
-          this.presentToast("Login Successfully");
-          this.navCtrl.setRoot(FirstPage);
-        })
-        .catch(error => {
+        }).catch(error => {
           console.log(error);
           loader.dismiss();
           this.showAlert(error.message);
-
         });
-
     }
   }
-
 
   presentToast(a: string) {
     let toast = this.toastCtrl.create({
@@ -69,10 +64,6 @@ export class HomePage {
       buttons: ['OK']
     });
     alert.present();
-  }
-
-  register() {
-    this.navCtrl.push(RegisterPage);
   }
 
   presentLoading() {
